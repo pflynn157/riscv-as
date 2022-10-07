@@ -1,1 +1,0 @@
-/usr/bin/c++ -rdynamic CMakeFiles/rvas.dir/lex.cpp.o CMakeFiles/rvas.dir/main.cpp.o CMakeFiles/rvas.dir/pass2.cpp.o -o rvas 
