@@ -25,6 +25,7 @@ void Pass2::run() {
             case Or:
             case And: build_r(token.type); break;
             
+            case Jalr:
             case Addi:
             case Slti:
             case Sltiu:
@@ -51,6 +52,10 @@ void Pass2::run() {
             case Bge:
             case Bltu:
             case Bgeu: build_br(token.type); break;
+            
+            case Lui:
+            case Auipc:
+            case Jal: build_uj(token.type); break;
             
             default: {}
         }
@@ -157,7 +162,12 @@ void Pass2::build_i(TokenType opcode) {
     // Encode the instruction
     uint32_t instr = 0;
     
-    instr |= (uint32_t)(0b0010011);     // I-Type opcode
+    if (opcode == Jalr) {
+        instr |= (uint32_t)(0b1100111);     // (JALR) I-Type opcode
+    } else {
+        instr |= (uint32_t)(0b0010011);     // I-Type opcode
+    }
+    
     instr |= (uint32_t)(rd << 7);
     instr |= (uint32_t)(func3 << 12);
     instr |= (uint32_t)(rs1 << 15);
@@ -381,6 +391,57 @@ void Pass2::build_br(TokenType opcode) {
 }
 
 //
+// Builds U/J-Type instructions
+//
+void Pass2::build_uj(TokenType opcode) {
+    // Get each token
+    int rd;
+    uint32_t imm = 0;
+    Token token = lex->getNext();
+    rd = getRegister(token.type);
+    if (rd == -1) {
+        std::cerr << "Invalid token: Expected register." << std::endl;
+        return;
+    }
+    
+    checkComma();
+    
+    token = lex->getNext();
+    imm = token.imm;
+    if (token.type != Imm) {
+        std::cerr << "Invalid token: Expected label." << std::endl;
+        return;
+    }
+    
+    checkNL();
+    
+    // If we have the JAL instruction, we need to do the fancy encoding
+    if (opcode == Jal) {
+        uint32_t imm1 = (uint32_t)((imm & 0x0FF000) >> 12);     // imm[19:12]    -> 0:8
+                imm1 |= (uint32_t)((imm & 0x0800) >> 2);        // imm[11]       -> 9
+                imm1 |= (uint32_t)((imm & 0x07FE) << 8);        // imm[10:1]     -> 10
+                imm1 |= (uint32_t)((imm & 100000) >> 9);        // imm[20]       -> 11
+        
+        imm = imm1;
+    }
+    
+    // Encode the instruction
+    uint32_t instr = 0;
+    
+    if (opcode == Lui) {
+        instr |= (uint32_t)(0b0110111);     // Lui U-Type opcode
+    } else if (opcode == Auipc) {
+        instr |= (uint32_t)(0b0010111);     // Auipc U-Type opcode
+    } else if (opcode == Jal) {
+        instr |= (uint32_t)(0b1101111);     // J-Type opcode
+    }
+    instr |= (uint32_t)(rd << 7);
+    instr |= (uint32_t)(imm << 12);
+    
+    fwrite(&instr, sizeof(uint32_t), 1, file);
+}
+
+//
 // Translates a register token to an integer
 //
 int Pass2::getRegister(TokenType token) {
@@ -429,6 +490,7 @@ int Pass2::getRegister(TokenType token) {
 //
 int Pass2::getALU(TokenType token) {
     switch (token) {
+        case Jalr:
         case Addi:
         case Add:
         case Sub: return 0b000;

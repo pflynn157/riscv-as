@@ -117,6 +117,11 @@ bool Lex::isKeyword() {
     else if (buffer == "bltu") return true;
     else if (buffer == "bgeu") return true;
     
+    else if (buffer == "lui") return true;
+    else if (buffer == "auipc") return true;
+    else if (buffer == "jal") return true;
+    else if (buffer == "jalr") return true;
+    
     else if (buffer == "x0") return true;
     else if (buffer == "x1") return true;
     else if (buffer == "x2") return true;
@@ -211,6 +216,11 @@ TokenType Lex::getKeyword() {
     else if (buffer == "bltu") return Bltu;
     else if (buffer == "bgeu") return Bgeu;
     
+    else if (buffer == "lui") return Lui;
+    else if (buffer == "auipc") return Auipc;
+    else if (buffer == "jal") return Jal;
+    else if (buffer == "jalr") return Jalr;
+    
     else if (buffer == "x0") return X0;
     else if (buffer == "x1") return X1;
     else if (buffer == "x2") return X2;
@@ -290,6 +300,11 @@ void Token::print() {
         case Bge: std::cout << "bge "; break;
         case Bltu: std::cout << "bltu "; break;
         case Bgeu: std::cout << "bgeu "; break;
+        
+        case Lui: std::cout << "lui "; break;
+        case Auipc: std::cout << "auipc "; break;
+        case Jal: std::cout << "jal "; break;
+        case Jalr: std::cout << "jalr "; break;
         
         case X0: std::cout << "x0 "; break;
         case X1: std::cout << "x1 "; break;
