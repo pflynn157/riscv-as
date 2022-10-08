@@ -35,6 +35,12 @@ void Pass2::run() {
             case Ori:
             case Andi: build_i(token.type); break;
             
+            case Lb:
+            case Lh:
+            case Lw:
+            case Lbu:
+            case Lhu: build_load(token.type); break;
+            
             default: {}
         }
         
@@ -156,6 +162,73 @@ void Pass2::build_i(TokenType opcode) {
     } else {
         instr |= (uint32_t)(imm << 20);
     }
+    
+    fwrite(&instr, sizeof(uint32_t), 1, file);
+}
+
+//
+// Builds the load instructions
+//
+void Pass2::build_load(TokenType opcode) {
+    // Get each token
+    int rd, rs1, imm;
+    Token token = lex->getNext();
+    rd = getRegister(token.type);
+    if (rd == -1) {
+        std::cerr << "Invalid token: Expected register." << std::endl;
+        return;
+    }
+    
+    checkComma();
+    
+    token = lex->getNext();
+    imm = token.imm;
+    if (token.type != Imm) {
+        std::cerr << "Invalid token: Expected offset." << std::endl;
+        return;
+    }
+    
+    token = lex->getNext();
+    if (token.type != LParen) {
+        std::cerr << "Invalid token: Expected \'(\'." << std::endl;
+        return;
+    }
+    
+    token = lex->getNext();
+    rs1 = getRegister(token.type);
+    if (rs1 == -1) {
+        std::cerr << "Invalid token: expected offset register." << std::endl;
+        return;
+    }
+    
+    token = lex->getNext();
+    if (token.type != RParen) {
+        std::cerr << "Invalid token: Expected \')\'." << std::endl;
+        return;
+    }
+    
+    checkNL();
+    
+    // Encode func3
+    int func3 = 0b010;
+    switch (opcode) {
+        case Lb: func3 = 0b000; break;
+        case Lh: func3 = 0b001; break;
+        case Lw: func3 = 0b010; break;
+        case Lbu: func3 = 0b100; break;
+        case Lhu: func3 = 0b101; break;
+        
+        default: {}
+    }
+    
+    // Encode the instruction
+    uint32_t instr = 0;
+    
+    instr |= (uint32_t)(0b0000011);     // I-Type opcode
+    instr |= (uint32_t)(rd << 7);
+    instr |= (uint32_t)(func3 << 12);
+    instr |= (uint32_t)(rs1 << 15);
+    instr |= (uint32_t)(imm << 20);
     
     fwrite(&instr, sizeof(uint32_t), 1, file);
 }

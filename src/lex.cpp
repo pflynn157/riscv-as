@@ -69,7 +69,9 @@ Token Lex::getNext() {
 bool Lex::isSymbol(char c) {
     switch (c) {
         case '\n':
-        case ',': return true;
+        case ',':
+        case '(':
+        case ')': return true;
         
         default: {}
     }
@@ -97,6 +99,12 @@ bool Lex::isKeyword() {
     else if (buffer == "srai") return true;
     else if (buffer == "ori") return true;
     else if (buffer == "andi") return true;
+    
+    else if (buffer == "lb") return true;
+    else if (buffer == "lh") return true;
+    else if (buffer == "lw") return true;
+    else if (buffer == "lbu") return true;
+    else if (buffer == "lhu") return true;
     
     else if (buffer == "x0") return true;
     else if (buffer == "x1") return true;
@@ -145,6 +153,8 @@ TokenType Lex::getSymbol(char c) {
     switch (c) {
         case '\n': return Nl;
         case ',': return Comma;
+        case '(': return LParen;
+        case ')': return RParen;
         
         default: {}
     }
@@ -172,6 +182,12 @@ TokenType Lex::getKeyword() {
     else if (buffer == "srai") return Srai;
     else if (buffer == "ori") return Ori;
     else if (buffer == "andi") return Andi;
+    
+    else if (buffer == "lb") return Lb;
+    else if (buffer == "lh") return Lh;
+    else if (buffer == "lw") return Lw;
+    else if (buffer == "lbu") return Lbu;
+    else if (buffer == "lhu") return Lhu;
     
     else if (buffer == "x0") return X0;
     else if (buffer == "x1") return X1;
@@ -236,6 +252,12 @@ void Token::print() {
         case Ori: std::cout << "ori "; break;
         case Andi: std::cout << "andi "; break;
         
+        case Lb: std::cout << "lb "; break;
+        case Lh: std::cout << "lh "; break;
+        case Lw: std::cout << "lw "; break;
+        case Lbu: std::cout << "lbu "; break;
+        case Lhu: std::cout << "lhu "; break;
+        
         case X0: std::cout << "x0 "; break;
         case X1: std::cout << "x1 "; break;
         case X2: std::cout << "x2 "; break;
@@ -271,6 +293,8 @@ void Token::print() {
         
         case Nl: std::cout << std::endl; break;
         case Comma: std::cout << ", "; break;
+        case LParen: std::cout << "("; break;
+        case RParen: std::cout << ")"; break;
         
         case Imm: std::cout << imm << " "; break;
         

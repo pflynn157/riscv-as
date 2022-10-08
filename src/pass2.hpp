@@ -12,6 +12,7 @@ public:
 protected:
     void build_r(TokenType opcode);
     void build_i(TokenType opcode);
+    void build_load(TokenType opcode);
     int getRegister(TokenType token);
     int getALU(TokenType token);
     void checkComma();
