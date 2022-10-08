@@ -41,6 +41,10 @@ void Pass2::run() {
             case Lbu:
             case Lhu: build_load(token.type); break;
             
+            case Sb:
+            case Sh:
+            case Sw: build_store(token.type); break;
+            
             default: {}
         }
         
@@ -224,11 +228,81 @@ void Pass2::build_load(TokenType opcode) {
     // Encode the instruction
     uint32_t instr = 0;
     
-    instr |= (uint32_t)(0b0000011);     // I-Type opcode
+    instr |= (uint32_t)(0b0000011);     // Load-Type opcode
     instr |= (uint32_t)(rd << 7);
     instr |= (uint32_t)(func3 << 12);
     instr |= (uint32_t)(rs1 << 15);
     instr |= (uint32_t)(imm << 20);
+    
+    fwrite(&instr, sizeof(uint32_t), 1, file);
+}
+
+//
+// Builds store instructions
+//
+void Pass2::build_store(TokenType opcode) {
+// Get each token
+    int rd, rs1, imm;
+    Token token = lex->getNext();
+    rd = getRegister(token.type);
+    if (rd == -1) {
+        std::cerr << "Invalid token: Expected register." << std::endl;
+        return;
+    }
+    
+    checkComma();
+    
+    token = lex->getNext();
+    imm = token.imm;
+    if (token.type != Imm) {
+        std::cerr << "Invalid token: Expected offset." << std::endl;
+        return;
+    }
+    
+    token = lex->getNext();
+    if (token.type != LParen) {
+        std::cerr << "Invalid token: Expected \'(\'." << std::endl;
+        return;
+    }
+    
+    token = lex->getNext();
+    rs1 = getRegister(token.type);
+    if (rs1 == -1) {
+        std::cerr << "Invalid token: expected offset register." << std::endl;
+        return;
+    }
+    
+    token = lex->getNext();
+    if (token.type != RParen) {
+        std::cerr << "Invalid token: Expected \')\'." << std::endl;
+        return;
+    }
+    
+    checkNL();
+    
+    // Encode func3
+    int func3 = 0b010;
+    switch (opcode) {
+        case Sb: func3 = 0b000; break;
+        case Sh: func3 = 0b001; break;
+        case Sw: func3 = 0b010; break;
+        
+        default: {}
+    }
+    
+    // Encode the immediate
+    uint8_t imm1 = (uint8_t)imm;
+    uint8_t imm2 = (uint8_t)(imm >> 5);
+    
+    // Encode the instruction
+    uint32_t instr = 0;
+    
+    instr |= (uint32_t)(0b0100011);     // Store-Type opcode
+    instr |= (uint32_t)(imm1 << 7);
+    instr |= (uint32_t)(func3 << 12);
+    instr |= (uint32_t)(rs1 << 15);
+    instr |= (uint32_t)(rd << 20);
+    instr |= (uint32_t)(imm2 << 25);
     
     fwrite(&instr, sizeof(uint32_t), 1, file);
 }
