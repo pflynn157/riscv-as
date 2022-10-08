@@ -53,7 +53,10 @@ Token Lex::getNext() {
                 buffer = "";
                 return token;
             } else {
-                // TODO: Id
+                token.type = Id;
+                token.id = buffer;
+                buffer = "";
+                return token;
             }
         } else {
             buffer += c;
@@ -71,7 +74,8 @@ bool Lex::isSymbol(char c) {
         case '\n':
         case ',':
         case '(':
-        case ')': return true;
+        case ')':
+        case ':': return true;
         
         default: {}
     }
@@ -171,6 +175,7 @@ TokenType Lex::getSymbol(char c) {
         case ',': return Comma;
         case '(': return LParen;
         case ')': return RParen;
+        case ':': return Colon;
         
         default: {}
     }

@@ -53,7 +53,9 @@ enum TokenType {
     Nl,
     Comma,
     LParen, RParen,
+    Colon,
     
+    Id,
     Imm
 };
 
@@ -63,6 +65,7 @@ enum TokenType {
 struct Token {
     TokenType type = None;
     int imm = 0;
+    std::string id = "";
     
     void print();
 };

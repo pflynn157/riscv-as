@@ -9,6 +9,10 @@ Pass2::Pass2(std::string input, std::string output) {
     file = fopen(output.c_str(), "wb");
 }
 
+void Pass2::setMap(std::map<std::string, int> labels) {
+    this->labels = labels;
+}
+
 void Pass2::run() {
     Token token = lex->getNext();
     while (token.type != Eof) {
@@ -121,6 +125,7 @@ void Pass2::build_r(TokenType opcode) {
     instr |= (uint32_t)(func7 << 25);
     
     fwrite(&instr, sizeof(uint32_t), 1, file);
+    lc += 4;
 }
 
 //
@@ -185,6 +190,7 @@ void Pass2::build_i(TokenType opcode) {
     }
     
     fwrite(&instr, sizeof(uint32_t), 1, file);
+    lc += 4;
 }
 
 //
@@ -252,6 +258,7 @@ void Pass2::build_load(TokenType opcode) {
     instr |= (uint32_t)(imm << 20);
     
     fwrite(&instr, sizeof(uint32_t), 1, file);
+    lc += 4;
 }
 
 //
@@ -322,6 +329,7 @@ void Pass2::build_store(TokenType opcode) {
     instr |= (uint32_t)(imm2 << 25);
     
     fwrite(&instr, sizeof(uint32_t), 1, file);
+    lc += 4;
 }
 
 //
@@ -348,10 +356,9 @@ void Pass2::build_br(TokenType opcode) {
     
     checkComma();
     
-    // TODO: This should be a label
     token = lex->getNext();
-    imm = token.imm;
-    if (token.type != Imm) {
+    imm = labels[token.id];
+    if (token.type != Id) {
         std::cerr << "Invalid token: Expected label." << std::endl;
         return;
     }
@@ -372,6 +379,8 @@ void Pass2::build_br(TokenType opcode) {
     }
     
     // Encode the immediate
+    imm -= lc;
+    
     uint8_t imm1 = (uint8_t)((imm & 0x00800) >> 11);    // Bit 11
            imm1 |= (uint8_t)(imm & 0b00011110);         // Bit [4:1]
     uint8_t imm2 = (uint8_t)((imm & 0x007E0) >> 5);     // Bit [10:5]
@@ -388,6 +397,7 @@ void Pass2::build_br(TokenType opcode) {
     instr |= (uint32_t)(imm2 << 25);
     
     fwrite(&instr, sizeof(uint32_t), 1, file);
+    lc += 4;
 }
 
 //
@@ -407,10 +417,14 @@ void Pass2::build_uj(TokenType opcode) {
     checkComma();
     
     token = lex->getNext();
-    imm = token.imm;
-    if (token.type != Imm) {
-        std::cerr << "Invalid token: Expected label." << std::endl;
-        return;
+    if (opcode == Jal && token.type == Id) {
+        imm = labels[token.id] - lc;
+    } else {
+        imm = token.imm;
+        if (token.type != Imm) {
+            std::cerr << "Invalid token: Expected label or immediate." << std::endl;
+            return;
+        }
     }
     
     checkNL();
@@ -439,6 +453,7 @@ void Pass2::build_uj(TokenType opcode) {
     instr |= (uint32_t)(imm << 12);
     
     fwrite(&instr, sizeof(uint32_t), 1, file);
+    lc += 4;
 }
 
 //
