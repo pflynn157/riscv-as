@@ -45,6 +45,13 @@ void Pass2::run() {
             case Sh:
             case Sw: build_store(token.type); break;
             
+            case Beq:
+            case Bne:
+            case Blt:
+            case Bge:
+            case Bltu:
+            case Bgeu: build_br(token.type); break;
+            
             default: {}
         }
         
@@ -302,6 +309,72 @@ void Pass2::build_store(TokenType opcode) {
     instr |= (uint32_t)(func3 << 12);
     instr |= (uint32_t)(rs1 << 15);
     instr |= (uint32_t)(rd << 20);
+    instr |= (uint32_t)(imm2 << 25);
+    
+    fwrite(&instr, sizeof(uint32_t), 1, file);
+}
+
+//
+// Builds the branch instructions
+//
+void Pass2::build_br(TokenType opcode) {
+    // Get each token
+    int rs1, rs2, imm;
+    Token token = lex->getNext();
+    rs1 = getRegister(token.type);
+    if (rs1 == -1) {
+        std::cerr << "Invalid token: Expected register source 1." << std::endl;
+        return;
+    }
+    
+    checkComma();
+    
+    token = lex->getNext();
+    rs2 = getRegister(token.type);
+    if (rs2 == -1) {
+        std::cerr << "Invalid token: Expected register source 2." << std::endl;
+        return;
+    }
+    
+    checkComma();
+    
+    // TODO: This should be a label
+    token = lex->getNext();
+    imm = token.imm;
+    if (token.type != Imm) {
+        std::cerr << "Invalid token: Expected label." << std::endl;
+        return;
+    }
+    
+    checkNL();
+    
+    // Get the branch operand
+    int func3 = 0;
+    switch (opcode) {
+        case Beq: func3 = 0; break;
+        case Bne: func3 = 0b001; break;
+        case Blt: func3 = 0b100; break;
+        case Bge: func3 = 0b101; break;
+        case Bltu: func3 = 0b110; break;
+        case Bgeu: func3 = 0b111; break;
+        
+        default: {}
+    }
+    
+    // Encode the immediate
+    uint8_t imm1 = (uint8_t)((imm & 0x00800) >> 11);    // Bit 11
+           imm1 |= (uint8_t)(imm & 0b00011110);         // Bit [4:1]
+    uint8_t imm2 = (uint8_t)((imm & 0x007E0) >> 5);     // Bit [10:5]
+           imm2 |= (uint8_t)((imm & 0x01000) >> 6);     // Bit 12
+
+    // Encode the instruction
+    uint32_t instr = 0;
+    
+    instr |= (uint32_t)(0b1100011);     // B-Type opcode
+    instr |= (uint32_t)(imm1 << 7);
+    instr |= (uint32_t)(func3 << 12);
+    instr |= (uint32_t)(rs1 << 15);
+    instr |= (uint32_t)(rs2 << 20);
     instr |= (uint32_t)(imm2 << 25);
     
     fwrite(&instr, sizeof(uint32_t), 1, file);
