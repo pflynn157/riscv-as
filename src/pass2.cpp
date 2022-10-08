@@ -25,6 +25,16 @@ void Pass2::run() {
             case Or:
             case And: build_r(token.type); break;
             
+            case Addi:
+            case Slti:
+            case Sltiu:
+            case Slli:
+            case Srli:
+            case Srai:
+            case Xori:
+            case Ori:
+            case Andi: build_i(token.type); break;
+            
             default: {}
         }
         
@@ -88,7 +98,65 @@ void Pass2::build_r(TokenType opcode) {
     instr |= (uint32_t)(rs2 << 20);
     instr |= (uint32_t)(func7 << 25);
     
-    printf("%X\n", instr);
+    fwrite(&instr, sizeof(uint32_t), 1, file);
+}
+
+//
+// Builds I-Type instructions
+//
+void Pass2::build_i(TokenType opcode) {
+    // Get each token
+    int rd, rs1, imm;
+    Token token = lex->getNext();
+    rd = getRegister(token.type);
+    if (rd == -1) {
+        std::cerr << "Invalid token: Expected register." << std::endl;
+        return;
+    }
+    
+    checkComma();
+    
+    token = lex->getNext();
+    rs1 = getRegister(token.type);
+    if (rs1 == -1) {
+        std::cerr << "Invalid token: Expected register source 1." << std::endl;
+        return;
+    }
+    
+    checkComma();
+    
+    token = lex->getNext();
+    imm = token.imm;
+    if (token.type != Imm) {
+        std::cerr << "Invalid token: Expected immediate for source 2." << std::endl;
+        return;
+    }
+    
+    checkNL();
+    
+    // Get the ALU operand
+    int func3 = getALU(opcode);
+
+    // Encode the instruction
+    uint32_t instr = 0;
+    
+    instr |= (uint32_t)(0b0010011);     // I-Type opcode
+    instr |= (uint32_t)(rd << 7);
+    instr |= (uint32_t)(func3 << 12);
+    instr |= (uint32_t)(rs1 << 15);
+    
+    // Encode the operand
+    // This differs slightly with the shift instructions
+    if (opcode == Slli || opcode == Srli || opcode == Srai) {
+        uint8_t func7 = 0;
+        if (opcode == Srai) func7 = 32;
+        
+        instr |= (uint32_t)(((uint8_t)imm) << 20);
+        instr |= (uint32_t)(func7 << 25);
+    } else {
+        instr |= (uint32_t)(imm << 20);
+    }
+    
     fwrite(&instr, sizeof(uint32_t), 1, file);
 }
 
@@ -141,22 +209,30 @@ int Pass2::getRegister(TokenType token) {
 //
 int Pass2::getALU(TokenType token) {
     switch (token) {
+        case Addi:
         case Add:
         case Sub: return 0b000;
         
+        case Slli:
         case Sll: return 0b001;
         
+        case Slti:
         case Slt: return 0b010;
         
+        case Sltiu:
         case Sltu: return 0b011;
         
+        case Xori:
         case Xor: return 0b100;
         
+        case Srli: case Srai:
         case Srl:
         case Sra: return 0b101;
         
+        case Ori:
         case Or: return 0b110;
         
+        case Andi:
         case And: return 0b111;
         
         default: {}
@@ -183,4 +259,5 @@ void Pass2::checkNL() {
         return;
     }
 }
+
 

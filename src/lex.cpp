@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cctype>
 
 #include "lex.hpp"
 
@@ -46,6 +47,11 @@ Token Lex::getNext() {
                 token.type = getKeyword();
                 buffer = "";
                 return token;
+            } else if (isInt()) {
+                token.type = Imm;
+                token.imm = std::stoi(buffer);
+                buffer = "";
+                return token;
             } else {
                 // TODO: Id
             }
@@ -81,6 +87,16 @@ bool Lex::isKeyword() {
     else if (buffer == "sra") return true;
     else if (buffer == "or") return true;
     else if (buffer == "and") return true;
+    
+    else if (buffer == "addi") return true;
+    else if (buffer == "slli") return true;
+    else if (buffer == "slti") return true;
+    else if (buffer == "sltiu") return true;
+    else if (buffer == "xori") return true;
+    else if (buffer == "srli") return true;
+    else if (buffer == "srai") return true;
+    else if (buffer == "ori") return true;
+    else if (buffer == "andi") return true;
     
     else if (buffer == "x0") return true;
     else if (buffer == "x1") return true;
@@ -119,7 +135,10 @@ bool Lex::isKeyword() {
 }
 
 bool Lex::isInt() {
-    return 0;
+    for (char c : buffer) {
+        if (!isdigit(c)) return false;
+    }
+    return true;
 }
 
 TokenType Lex::getSymbol(char c) {
@@ -143,6 +162,16 @@ TokenType Lex::getKeyword() {
     else if (buffer == "sra") return Sra;
     else if (buffer == "or") return Or;
     else if (buffer == "and") return And;
+    
+    else if (buffer == "addi") return Addi;
+    else if (buffer == "slli") return Slli;
+    else if (buffer == "slti") return Slti;
+    else if (buffer == "sltiu") return Sltiu;
+    else if (buffer == "xori") return Xori;
+    else if (buffer == "srli") return Srli;
+    else if (buffer == "srai") return Srai;
+    else if (buffer == "ori") return Ori;
+    else if (buffer == "andi") return Andi;
     
     else if (buffer == "x0") return X0;
     else if (buffer == "x1") return X1;
@@ -196,6 +225,16 @@ void Token::print() {
         case Sra: std::cout << "sra "; break;
         case Or: std::cout << "or "; break;
         case And: std::cout << "and "; break;
+        
+        case Addi: std::cout << "addi "; break;
+        case Slli: std::cout << "slli "; break;
+        case Slti: std::cout << "slti "; break;
+        case Sltiu: std::cout << "sltiu "; break;
+        case Xori: std::cout << "xori "; break;
+        case Srli: std::cout << "srli "; break;
+        case Srai: std::cout << "srai "; break;
+        case Ori: std::cout << "ori "; break;
+        case Andi: std::cout << "andi "; break;
         
         case X0: std::cout << "x0 "; break;
         case X1: std::cout << "x1 "; break;
