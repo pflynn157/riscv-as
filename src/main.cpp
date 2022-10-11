@@ -12,11 +12,15 @@ int main(int argc, char **argv) {
     }
     
     std::string input = argv[1];
+    std::string output = "out";
+    if (argc == 3) {
+        output = argv[2];
+    }
     
     Pass1 *pass1 = new Pass1(input);
     std::map<std::string, int> labels = pass1->run();
     
-    Pass2 *pass2 = new Pass2(input, "out");
+    Pass2 *pass2 = new Pass2(input, output);
     pass2->setMap(labels);
     pass2->run();
     delete pass2;
