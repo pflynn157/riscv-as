@@ -93,7 +93,9 @@ bool Lex::isSymbol(char c) {
 }
 
 bool Lex::isKeyword() {
-    if (buffer == "add") return true;
+    if (buffer == "nop") return true;
+    
+    else if (buffer == "add") return true;
     else if (buffer == "sub") return true;
     else if (buffer == "sll") return true;
     else if (buffer == "slt") return true;
@@ -193,7 +195,9 @@ TokenType Lex::getSymbol(char c) {
 }
 
 TokenType Lex::getKeyword() {
-    if (buffer == "add") return Add;
+    if (buffer == "nop") return Nop;
+    
+    else if (buffer == "add") return Add;
     else if (buffer == "sub") return Sub;
     else if (buffer == "sll") return Sll;
     else if (buffer == "slt") return Slt;
@@ -277,6 +281,7 @@ TokenType Lex::getKeyword() {
 void Token::print() {
     switch (type) {
         case Eof: std::cout << "EOF "; break;
+        case Nop: std::cout << "nop "; break;
         
         case Add: std::cout << "add "; break;
         case Sub: std::cout << "sub "; break;

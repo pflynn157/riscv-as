@@ -10,6 +10,7 @@
 enum TokenType {
     None,
     Eof,
+    Nop,
     
     // R-Type instructions
     Add, Sub,

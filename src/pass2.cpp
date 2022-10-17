@@ -61,6 +61,12 @@ void Pass2::run() {
             case Auipc:
             case Jal: build_uj(token.type); break;
             
+            case Nop: {
+                uint32_t instr = 0;
+                fwrite(&instr, sizeof(uint32_t), 1, file);
+                lc += 4;
+            } break;
+            
             default: {}
         }
         
