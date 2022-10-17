@@ -29,6 +29,16 @@ Token Lex::getNext() {
     
     while (!reader.eof()) {
         char c = reader.get();
+        
+        // Check to see if we have a comment
+        if (c == ';') {
+            while (c != '\n' && !reader.eof()) {
+                c = reader.get();
+            }
+            c = reader.get();
+        }
+        
+        // Otherwise do normal processing
         if (c == ' ' || isSymbol(c)) {
             if (isSymbol(c)) {
                 if (buffer.length() == 0) {
