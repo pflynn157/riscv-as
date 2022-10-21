@@ -138,6 +138,10 @@ bool Lex::isKeyword() {
     else if (buffer == "jal") return true;
     else if (buffer == "jalr") return true;
     
+    else if (buffer == "flw") return true;
+    else if (buffer == "fsw") return true;
+    else if (buffer == "fadd.s") return true;
+    
     else if (buffer == "x0") return true;
     else if (buffer == "x1") return true;
     else if (buffer == "x2") return true;
@@ -170,6 +174,39 @@ bool Lex::isKeyword() {
     else if (buffer == "x29") return true;
     else if (buffer == "x30") return true;
     else if (buffer == "x31") return true;
+    
+    else if (buffer == "f0") return true;
+    else if (buffer == "f1") return true;
+    else if (buffer == "f2") return true;
+    else if (buffer == "f3") return true;
+    else if (buffer == "f4") return true;
+    else if (buffer == "f5") return true;
+    else if (buffer == "f6") return true;
+    else if (buffer == "f7") return true;
+    else if (buffer == "f8") return true;
+    else if (buffer == "f9") return true;
+    else if (buffer == "f10") return true;
+    else if (buffer == "f11") return true;
+    else if (buffer == "f12") return true;
+    else if (buffer == "f13") return true;
+    else if (buffer == "f14") return true;
+    else if (buffer == "f15") return true;
+    else if (buffer == "f16") return true;
+    else if (buffer == "f17") return true;
+    else if (buffer == "f18") return true;
+    else if (buffer == "f19") return true;
+    else if (buffer == "f20") return true;
+    else if (buffer == "f21") return true;
+    else if (buffer == "f22") return true;
+    else if (buffer == "f23") return true;
+    else if (buffer == "f24") return true;
+    else if (buffer == "f25") return true;
+    else if (buffer == "f26") return true;
+    else if (buffer == "f27") return true;
+    else if (buffer == "f28") return true;
+    else if (buffer == "f29") return true;
+    else if (buffer == "f30") return true;
+    else if (buffer == "f31") return true;
     
     return false;
 }
@@ -240,6 +277,10 @@ TokenType Lex::getKeyword() {
     else if (buffer == "jal") return Jal;
     else if (buffer == "jalr") return Jalr;
     
+    else if (buffer == "flw") return Flw;
+    else if (buffer == "fsw") return Fsw;
+    else if (buffer == "fadd.s") return Fadds;
+    
     else if (buffer == "x0") return X0;
     else if (buffer == "x1") return X1;
     else if (buffer == "x2") return X2;
@@ -272,6 +313,40 @@ TokenType Lex::getKeyword() {
     else if (buffer == "x29") return X29;
     else if (buffer == "x30") return X30;
     else if (buffer == "x31") return X31;
+    
+    else if (buffer == "f0") return F0;
+    else if (buffer == "f1") return F1;
+    else if (buffer == "f2") return F2;
+    else if (buffer == "f3") return F3;
+    else if (buffer == "f4") return F4;
+    else if (buffer == "f5") return F5;
+    else if (buffer == "f6") return F6;
+    else if (buffer == "f7") return F7;
+    else if (buffer == "f8") return F8;
+    else if (buffer == "f9") return F9;
+    else if (buffer == "f10") return F10;
+    else if (buffer == "f11") return F11;
+    else if (buffer == "f12") return F12;
+    else if (buffer == "f13") return F13;
+    else if (buffer == "f14") return F14;
+    else if (buffer == "f15") return F15;
+    else if (buffer == "f16") return F16;
+    else if (buffer == "f17") return F17;
+    else if (buffer == "f18") return F18;
+    else if (buffer == "f19") return F19;
+    else if (buffer == "f20") return F20;
+    else if (buffer == "f21") return F21;
+    else if (buffer == "f22") return F22;
+    else if (buffer == "f23") return F23;
+    else if (buffer == "f24") return F24;
+    else if (buffer == "f25") return F25;
+    else if (buffer == "f26") return F26;
+    else if (buffer == "f27") return F27;
+    else if (buffer == "f28") return F28;
+    else if (buffer == "f29") return F29;
+    else if (buffer == "f30") return F30;
+    else if (buffer == "f31") return F31;
+    
     return None;
 }
 
@@ -326,6 +401,10 @@ void Token::print() {
         case Jal: std::cout << "jal "; break;
         case Jalr: std::cout << "jalr "; break;
         
+        case Flw: std::cout << "flw "; break;
+        case Fsw: std::cout << "fsw "; break;
+        case Fadds: std::cout << "fadd.s "; break;
+        
         case X0: std::cout << "x0 "; break;
         case X1: std::cout << "x1 "; break;
         case X2: std::cout << "x2 "; break;
@@ -358,6 +437,39 @@ void Token::print() {
         case X29: std::cout << "x29 "; break;
         case X30: std::cout << "x30 "; break;
         case X31: std::cout << "x31 "; break;
+        
+        case F0: std::cout << "f0 "; break;
+        case F1: std::cout << "f1 "; break;
+        case F2: std::cout << "f2 "; break;
+        case F3: std::cout << "f3 "; break;
+        case F4: std::cout << "f4 "; break;
+        case F5: std::cout << "f5 "; break;
+        case F6: std::cout << "f6 "; break;
+        case F7: std::cout << "f7 "; break;
+        case F8: std::cout << "f8 "; break;
+        case F9: std::cout << "f9 "; break;
+        case F10: std::cout << "f10 "; break;
+        case F11: std::cout << "f11 "; break;
+        case F12: std::cout << "f12 "; break;
+        case F13: std::cout << "f13 "; break;
+        case F14: std::cout << "f14 "; break;
+        case F15: std::cout << "f15 "; break;
+        case F16: std::cout << "f16 "; break;
+        case F17: std::cout << "f17 "; break;
+        case F18: std::cout << "f18 "; break;
+        case F19: std::cout << "f19 "; break;
+        case F20: std::cout << "f20 "; break;
+        case F21: std::cout << "f21 "; break;
+        case F22: std::cout << "f22 "; break;
+        case F23: std::cout << "f23 "; break;
+        case F24: std::cout << "f24 "; break;
+        case F25: std::cout << "f25 "; break;
+        case F26: std::cout << "f26 "; break;
+        case F27: std::cout << "f27 "; break;
+        case F28: std::cout << "f28 "; break;
+        case F29: std::cout << "f29 "; break;
+        case F30: std::cout << "f30 "; break;
+        case F31: std::cout << "f31 "; break;
         
         case Nl: std::cout << std::endl; break;
         case Comma: std::cout << ", "; break;

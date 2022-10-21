@@ -18,7 +18,11 @@ protected:
     void build_store(TokenType opcode);
     void build_br(TokenType opcode);
     void build_uj(TokenType opcode);
+    void build_fload(TokenType opcode);
+    void build_fstore(TokenType opcode);
+    void build_falu(TokenType opcode);
     int getRegister(TokenType token);
+    int getFloatRegister(TokenType token);
     int getALU(TokenType token);
     void checkComma();
     void checkNL();

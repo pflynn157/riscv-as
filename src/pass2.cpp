@@ -61,6 +61,10 @@ void Pass2::run() {
             case Auipc:
             case Jal: build_uj(token.type); break;
             
+            case Flw: build_fload(token.type); break;
+            case Fsw: build_fstore(token.type); break;
+            case Fadds: build_falu(token.type); break;
+            
             case Nop: {
                 uint32_t instr = 0;
                 fwrite(&instr, sizeof(uint32_t), 1, file);
@@ -463,6 +467,76 @@ void Pass2::build_uj(TokenType opcode) {
 }
 
 //
+// Builds an flw instruction (float-load)
+//
+void Pass2::build_fload(TokenType opcode) {
+
+}
+
+//
+// Builds an fsw instruction (float-store)
+//
+void Pass2::build_fstore(TokenType opcode) {
+
+}
+
+//
+// Builds a floating-point math instruction
+// Note: Only fadd.s supported at the moment
+//
+void Pass2::build_falu(TokenType opcode) {
+    // Get each token
+    int rd, rs1, rs2;
+    Token token = lex->getNext();
+    rd = getFloatRegister(token.type);
+    if (rd == -1) {
+        std::cerr << "Invalid token: Expected float register." << std::endl;
+        return;
+    }
+    
+    checkComma();
+    
+    token = lex->getNext();
+    rs1 = getFloatRegister(token.type);
+    if (rs1 == -1) {
+        std::cerr << "Invalid token: Expected float register source 1." << std::endl;
+        return;
+    }
+    
+    checkComma();
+    
+    token = lex->getNext();
+    rs2 = getFloatRegister(token.type);
+    if (rs2 == -1) {
+        std::cerr << "Invalid token: Expected float register source 2." << std::endl;
+        return;
+    }
+    
+    checkNL();
+    
+    // Set rm
+    int func3 = 0b111;
+    
+    uint32_t func7 = 0;
+    //if (opcode == Sub || opcode == Sra) {
+    //    func7 = 32;
+    //}
+
+    // Encode the instruction
+    uint32_t instr = 0;
+    
+    instr |= (uint32_t)(0b1010011);     // F-Type alu opcode
+    instr |= (uint32_t)(rd << 7);
+    instr |= (uint32_t)(func3 << 12);
+    instr |= (uint32_t)(rs1 << 15);
+    instr |= (uint32_t)(rs2 << 20);
+    instr |= (uint32_t)(func7 << 25);
+    
+    fwrite(&instr, sizeof(uint32_t), 1, file);
+    lc += 4;
+}
+
+//
 // Translates a register token to an integer
 //
 int Pass2::getRegister(TokenType token) {
@@ -499,6 +573,51 @@ int Pass2::getRegister(TokenType token) {
         case X29: return 29;
         case X30: return 30;
         case X31: return 31;
+        
+        default: {}
+    }
+    
+    return -1;
+}
+
+//
+// Translates a float register token to an integer
+// We want to use a separate function for syntax checking
+//
+int Pass2::getFloatRegister(TokenType token) {
+    switch (token) {
+        case F0: return 0;
+        case F1: return 1;
+        case F2: return 2;
+        case F3: return 3;
+        case F4: return 4;
+        case F5: return 5;
+        case F6: return 6;
+        case F7: return 7;
+        case F8: return 8;
+        case F9: return 9;
+        case F10: return 10;
+        case F11: return 11;
+        case F12: return 12;
+        case F13: return 13;
+        case F14: return 14;
+        case F15: return 15;
+        case F16: return 16;
+        case F17: return 17;
+        case F18: return 18;
+        case F19: return 19;
+        case F20: return 20;
+        case F21: return 21;
+        case F22: return 22;
+        case F23: return 23;
+        case F24: return 24;
+        case F25: return 25;
+        case F26: return 26;
+        case F27: return 27;
+        case F28: return 28;
+        case F29: return 29;
+        case F30: return 30;
+        case F31: return 31;
         
         default: {}
     }
