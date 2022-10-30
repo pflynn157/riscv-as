@@ -23,6 +23,14 @@ std::map<std::string, int> Pass1::run() {
                     std::cerr << "Error: Expected \':\' after label." << std::endl;
                     return labels;
                 }
+                
+                token = lex->getNext();
+                if (token.type == String) {
+                    std::string s = token.id;
+                    for (char c : s) {
+                        ++lc;
+                    }
+                }
             }
             
             case Nl: break;

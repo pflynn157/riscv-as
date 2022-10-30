@@ -1,5 +1,3 @@
-flw f10, 23(x1)
-flw f2, 0(x2)
+fadd.s f1, f2, f3
+fsub.s f2, f3, f4
 
-fsw f20, 44(x3)
-fsw f1, 0(x30)

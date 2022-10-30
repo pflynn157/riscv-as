@@ -30,6 +30,7 @@ void Pass2::run() {
             case And: build_r(token.type); break;
             
             case Jalr:
+            case Ecall:
             case Addi:
             case Slti:
             case Sltiu:
@@ -63,12 +64,32 @@ void Pass2::run() {
             
             case Flw: build_fload(token.type); break;
             case Fsw: build_fstore(token.type); break;
-            case Fadds: build_falu(token.type); break;
+            case Fadds:
+            case Fsubs: build_falu(token.type); break;
             
+            // TODO: Change to addi
             case Nop: {
                 uint32_t instr = 0;
                 fwrite(&instr, sizeof(uint32_t), 1, file);
                 lc += 4;
+            } break;
+            
+            case Hlt: {
+                uint32_t instr = 0xFFFFFFFF;
+                fwrite(&instr, sizeof(uint32_t), 1, file);
+                lc += 4;
+            } break;
+            
+            case Id: {
+                // Next token is always a colon
+                token = lex->getNext();
+                token = lex->getNext();
+                if (token.type == String) {
+                    for (char c : token.id) {
+                        fputc(c, file);
+                    }
+                    lc += token.id.length();
+                }
             } break;
             
             default: {}
@@ -164,7 +185,9 @@ void Pass2::build_i(TokenType opcode) {
     
     token = lex->getNext();
     imm = token.imm;
-    if (token.type != Imm) {
+    if (token.type == Id) {
+        imm = labels[token.id];
+    } else if (token.type != Imm) {
         std::cerr << "Invalid token: Expected immediate for source 2." << std::endl;
         return;
     }
@@ -179,6 +202,9 @@ void Pass2::build_i(TokenType opcode) {
     
     if (opcode == Jalr) {
         instr |= (uint32_t)(0b1100111);     // (JALR) I-Type opcode
+    } else if (opcode == Ecall) {
+        instr |= (uint32_t)(0b1100111);     // (ECALL) I-Type opcode
+        func3 = 0b111;
     } else {
         instr |= (uint32_t)(0b0010011);     // I-Type opcode
     }
@@ -315,7 +341,7 @@ void Pass2::build_store(TokenType opcode) {
     checkNL();
     
     // Encode func3
-    int func3 = 0b010;
+    uint8_t func3 = 0b010;
     switch (opcode) {
         case Sb: func3 = 0b000; break;
         case Sh: func3 = 0b001; break;
@@ -325,7 +351,7 @@ void Pass2::build_store(TokenType opcode) {
     }
     
     // Encode the immediate
-    uint8_t imm1 = (uint8_t)imm;
+    uint8_t imm1 = (uint8_t)(imm & 0x1F);
     uint8_t imm2 = (uint8_t)(imm >> 5);
     
     // Encode the instruction
@@ -627,9 +653,9 @@ void Pass2::build_falu(TokenType opcode) {
     int func3 = 0b111;
     
     uint32_t func7 = 0;
-    //if (opcode == Sub || opcode == Sra) {
-    //    func7 = 32;
-    //}
+    if (opcode == Fsubs) {
+        func7 = 4;
+    }
 
     // Encode the instruction
     uint32_t instr = 0;
@@ -679,9 +705,13 @@ int Pass2::getRegister(TokenType token) {
         case X26: return 26;
         case X27: return 27;
         case X28: return 28;
-        case X29: return 29;
-        case X30: return 30;
-        case X31: return 31;
+        
+        case X29:
+        case Bp: return 29;
+        case X30:
+        case Ra: return 30;
+        case X31:
+        case Sp: return 31;
         
         default: {}
     }

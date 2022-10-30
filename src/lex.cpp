@@ -38,6 +38,21 @@ Token Lex::getNext() {
             c = reader.get();
         }
         
+        if (c == '\"') {
+            std::string s = "";
+            while (!reader.eof()) {
+                c = reader.get();
+                if (c == '\"') {
+                    break;
+                }
+                s += c;
+            }
+            
+            token.id = s;
+            token.type = String;
+            return token;
+        }
+        
         // Otherwise do normal processing
         if (c == ' ' || isSymbol(c)) {
             if (isSymbol(c)) {
@@ -94,6 +109,8 @@ bool Lex::isSymbol(char c) {
 
 bool Lex::isKeyword() {
     if (buffer == "nop") return true;
+    else if (buffer == "hlt") return true;
+    else if (buffer == "ecall") return true;
     
     else if (buffer == "add") return true;
     else if (buffer == "sub") return true;
@@ -141,6 +158,7 @@ bool Lex::isKeyword() {
     else if (buffer == "flw") return true;
     else if (buffer == "fsw") return true;
     else if (buffer == "fadd.s") return true;
+    else if (buffer == "fsub.s") return true;
     
     else if (buffer == "x0") return true;
     else if (buffer == "x1") return true;
@@ -174,6 +192,10 @@ bool Lex::isKeyword() {
     else if (buffer == "x29") return true;
     else if (buffer == "x30") return true;
     else if (buffer == "x31") return true;
+    
+    else if (buffer == "bp") return true;
+    else if (buffer == "ra") return true;
+    else if (buffer == "sp") return true;
     
     else if (buffer == "f0") return true;
     else if (buffer == "f1") return true;
@@ -213,6 +235,7 @@ bool Lex::isKeyword() {
 
 bool Lex::isInt() {
     for (char c : buffer) {
+        if (c == '-') continue;
         if (!isdigit(c)) return false;
     }
     return true;
@@ -233,6 +256,8 @@ TokenType Lex::getSymbol(char c) {
 
 TokenType Lex::getKeyword() {
     if (buffer == "nop") return Nop;
+    else if (buffer == "hlt") return Hlt;
+    else if (buffer == "ecall") return Ecall;
     
     else if (buffer == "add") return Add;
     else if (buffer == "sub") return Sub;
@@ -280,6 +305,7 @@ TokenType Lex::getKeyword() {
     else if (buffer == "flw") return Flw;
     else if (buffer == "fsw") return Fsw;
     else if (buffer == "fadd.s") return Fadds;
+    else if (buffer == "fsub.s") return Fsubs;
     
     else if (buffer == "x0") return X0;
     else if (buffer == "x1") return X1;
@@ -313,6 +339,10 @@ TokenType Lex::getKeyword() {
     else if (buffer == "x29") return X29;
     else if (buffer == "x30") return X30;
     else if (buffer == "x31") return X31;
+    
+    else if (buffer == "bp") return Bp;
+    else if (buffer == "ra") return Ra;
+    else if (buffer == "sp") return Sp;
     
     else if (buffer == "f0") return F0;
     else if (buffer == "f1") return F1;
@@ -357,6 +387,8 @@ void Token::print() {
     switch (type) {
         case Eof: std::cout << "EOF "; break;
         case Nop: std::cout << "nop "; break;
+        case Hlt: std::cout << "hlt "; break;
+        case Ecall: std::cout << "ecall "; break;
         
         case Add: std::cout << "add "; break;
         case Sub: std::cout << "sub "; break;
@@ -404,6 +436,7 @@ void Token::print() {
         case Flw: std::cout << "flw "; break;
         case Fsw: std::cout << "fsw "; break;
         case Fadds: std::cout << "fadd.s "; break;
+        case Fsubs: std::cout << "fsub.s "; break;
         
         case X0: std::cout << "x0 "; break;
         case X1: std::cout << "x1 "; break;
@@ -437,6 +470,10 @@ void Token::print() {
         case X29: std::cout << "x29 "; break;
         case X30: std::cout << "x30 "; break;
         case X31: std::cout << "x31 "; break;
+        
+        case Bp: std::cout << "bp "; break;
+        case Ra: std::cout << "ra "; break;
+        case Sp: std::cout << "sp "; break;
         
         case F0: std::cout << "f0 "; break;
         case F1: std::cout << "f1 "; break;
