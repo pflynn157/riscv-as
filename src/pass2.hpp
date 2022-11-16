@@ -11,6 +11,8 @@ public:
     explicit Pass2(std::string input, std::string output);
     void setMap(std::map<std::string, int> labels);
     void run();
+    
+    void setFormat(std::string format) { this->format = format; }
 protected:
     void build_r(TokenType opcode);
     void build_i(TokenType opcode);
@@ -24,6 +26,7 @@ protected:
     int getRegister(TokenType token);
     int getFloatRegister(TokenType token);
     int getALU(TokenType token);
+    std::string convertToBinary(uint32_t instr);
     void checkComma();
     void checkNL();
 private:
@@ -31,5 +34,8 @@ private:
     FILE *file;
     std::map<std::string, int> labels;
     int lc = 0;
+    
+    // Formats: default, string
+    std::string format = "default";
 };
 

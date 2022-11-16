@@ -70,13 +70,25 @@ void Pass2::run() {
             // TODO: Change to addi
             case Nop: {
                 uint32_t instr = 0;
-                fwrite(&instr, sizeof(uint32_t), 1, file);
+                if (format == "default") {
+                    fwrite(&instr, sizeof(uint32_t), 1, file);
+                } else if (format == "string") {
+                    std::string output = convertToBinary(instr);
+                    fputs(output.c_str(), file);
+                    fputc('\n', file);
+                }
                 lc += 4;
             } break;
             
             case Hlt: {
                 uint32_t instr = 0xFFFFFFFF;
-                fwrite(&instr, sizeof(uint32_t), 1, file);
+                if (format == "default") {
+                    fwrite(&instr, sizeof(uint32_t), 1, file);
+                } else if (format == "string") {
+                    std::string output = convertToBinary(instr);
+                    fputs(output.c_str(), file);
+                    fputc('\n', file);
+                }
                 lc += 4;
             } break;
             
@@ -155,7 +167,13 @@ void Pass2::build_r(TokenType opcode) {
     instr |= (uint32_t)(rs2 << 20);
     instr |= (uint32_t)(func7 << 25);
     
-    fwrite(&instr, sizeof(uint32_t), 1, file);
+    if (format == "default") {
+        fwrite(&instr, sizeof(uint32_t), 1, file);
+    } else if (format == "string") {
+        std::string output = convertToBinary(instr);
+        fputs(output.c_str(), file);
+        fputc('\n', file);
+    }
     lc += 4;
 }
 
@@ -225,7 +243,13 @@ void Pass2::build_i(TokenType opcode) {
         instr |= (uint32_t)(imm << 20);
     }
     
-    fwrite(&instr, sizeof(uint32_t), 1, file);
+    if (format == "default") {
+        fwrite(&instr, sizeof(uint32_t), 1, file);
+    } else if (format == "string") {
+        std::string output = convertToBinary(instr);
+        fputs(output.c_str(), file);
+        fputc('\n', file);
+    }
     lc += 4;
 }
 
@@ -293,7 +317,13 @@ void Pass2::build_load(TokenType opcode) {
     instr |= (uint32_t)(rs1 << 15);
     instr |= (uint32_t)(imm << 20);
     
-    fwrite(&instr, sizeof(uint32_t), 1, file);
+    if (format == "default") {
+        fwrite(&instr, sizeof(uint32_t), 1, file);
+    } else if (format == "string") {
+        std::string output = convertToBinary(instr);
+        fputs(output.c_str(), file);
+        fputc('\n', file);
+    }
     lc += 4;
 }
 
@@ -364,7 +394,13 @@ void Pass2::build_store(TokenType opcode) {
     instr |= (uint32_t)(rd << 20);
     instr |= (uint32_t)(imm2 << 25);
     
-    fwrite(&instr, sizeof(uint32_t), 1, file);
+    if (format == "default") {
+        fwrite(&instr, sizeof(uint32_t), 1, file);
+    } else if (format == "string") {
+        std::string output = convertToBinary(instr);
+        fputs(output.c_str(), file);
+        fputc('\n', file);
+    }
     lc += 4;
 }
 
@@ -432,7 +468,13 @@ void Pass2::build_br(TokenType opcode) {
     instr |= (uint32_t)(rs2 << 20);
     instr |= (uint32_t)(imm2 << 25);
     
-    fwrite(&instr, sizeof(uint32_t), 1, file);
+    if (format == "default") {
+        fwrite(&instr, sizeof(uint32_t), 1, file);
+    } else if (format == "string") {
+        std::string output = convertToBinary(instr);
+        fputs(output.c_str(), file);
+        fputc('\n', file);
+    }
     lc += 4;
 }
 
@@ -488,7 +530,13 @@ void Pass2::build_uj(TokenType opcode) {
     instr |= (uint32_t)(rd << 7);
     instr |= (uint32_t)(imm << 12);
     
-    fwrite(&instr, sizeof(uint32_t), 1, file);
+    if (format == "default") {
+        fwrite(&instr, sizeof(uint32_t), 1, file);
+    } else if (format == "string") {
+        std::string output = convertToBinary(instr);
+        fputs(output.c_str(), file);
+        fputc('\n', file);
+    }
     lc += 4;
 }
 
@@ -547,7 +595,13 @@ void Pass2::build_fload(TokenType opcode) {
     instr |= (uint32_t)(rs1 << 15);
     instr |= (uint32_t)(imm << 20);
     
-    fwrite(&instr, sizeof(uint32_t), 1, file);
+    if (format == "default") {
+        fwrite(&instr, sizeof(uint32_t), 1, file);
+    } else if (format == "string") {
+        std::string output = convertToBinary(instr);
+        fputs(output.c_str(), file);
+        fputc('\n', file);
+    }
     lc += 4;
 }
 
@@ -611,7 +665,13 @@ void Pass2::build_fstore(TokenType opcode) {
     instr |= (uint32_t)(rd << 20);
     instr |= (uint32_t)(imm2 << 25);
     
-    fwrite(&instr, sizeof(uint32_t), 1, file);
+    if (format == "default") {
+        fwrite(&instr, sizeof(uint32_t), 1, file);
+    } else if (format == "string") {
+        std::string output = convertToBinary(instr);
+        fputs(output.c_str(), file);
+        fputc('\n', file);
+    }
     lc += 4;
 }
 
@@ -667,7 +727,13 @@ void Pass2::build_falu(TokenType opcode) {
     instr |= (uint32_t)(rs2 << 20);
     instr |= (uint32_t)(func7 << 25);
     
-    fwrite(&instr, sizeof(uint32_t), 1, file);
+    if (format == "default") {
+        fwrite(&instr, sizeof(uint32_t), 1, file);
+    } else if (format == "string") {
+        std::string output = convertToBinary(instr);
+        fputs(output.c_str(), file);
+        fputc('\n', file);
+    }
     lc += 4;
 }
 
@@ -800,6 +866,22 @@ int Pass2::getALU(TokenType token) {
     }
     
     return 0;
+}
+
+//
+// Converts a binary instruction to a base-2 string
+// This utility is for VHDL testing
+//
+std::string Pass2::convertToBinary(uint32_t instr) {
+    std::string output = "";
+    
+    for (int i = 0; i<32; i++) {
+        uint8_t data = 0;
+        data = (instr >> i) & 0x01;
+        output = char(data + '0') + output;
+    }
+    
+    return output;
 }
 
 //

@@ -11,10 +11,24 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    std::string input = argv[1];
+    /*std::string input = argv[1];
     std::string output = "out";
     if (argc == 3) {
         output = argv[2];
+    }*/
+    std::string input = "";
+    std::string output = "out";
+    std::string format = "default";
+    for (int i = 1; i<argc; i++) {
+        if (std::string(argv[i]) == "-f") {
+            format = std::string(argv[i+1]);
+            ++i;
+        } else if (std::string(argv[i]) == "-o") {
+            output = std::string(argv[i+1]);
+            ++i;
+        } else {
+            input = argv[i];
+        }
     }
     
     Pass1 *pass1 = new Pass1(input);
@@ -22,6 +36,7 @@ int main(int argc, char **argv) {
     
     Pass2 *pass2 = new Pass2(input, output);
     pass2->setMap(labels);
+    pass2->setFormat(format);
     pass2->run();
     delete pass2;
 
